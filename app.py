@@ -102,14 +102,23 @@ for i, (label, value) in enumerate(metrics.items()):
     cols[i % 3].metric(label, value)
 
 # ---------------------------------------------------------------------------
-# GenAI response section
+# BASELINE EMAIL GENERATOR
+# ---------------------------------------------------------------------------
+# The baseline represents a simpler workflow with no deterministic scoring,
+# no risk reasoning, and no structured prompt. It passes raw customer data
+# directly to the model with a generic instruction. This is the "before"
+# state — used as a comparison point to evaluate the value added by the
+# improved system below.
 # ---------------------------------------------------------------------------
 st.divider()
-st.subheader("GenAI Response")
+st.subheader("Baseline Email Generator")
+st.caption(
+    "Generates a generic follow-up email using only raw account data — "
+    "no risk scoring, no structured reasoning, no prompt engineering."
+)
 
-if st.button("Generate GenAI Response"):
+if st.button("Generate Baseline Email"):
 
-    # Check for API key before making any call
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
         st.error(
@@ -117,7 +126,70 @@ if st.button("Generate GenAI Response"):
         )
         st.stop()
 
-    # Load the prompt template
+    # Build a plain summary of the raw row — no scoring, no analysis
+    raw_data_summary = (
+        f"Customer Name: {customer_row['customer_name']}\n"
+        f"Usage Change (%): {customer_row['usage_change_percent']}\n"
+        f"Days Since Last Login: {customer_row['last_login_days']}\n"
+        f"Support Tickets: {customer_row['support_ticket_count']}\n"
+        f"Days Until Renewal: {customer_row['renewal_days_remaining']}\n"
+        f"Customer Sentiment: {customer_row['customer_sentiment']}\n"
+        f"Feature Request Status: {customer_row['feature_request_status']}\n"
+        f"Notes: {customer_row.get('notes', 'N/A')}"
+    )
+
+    # Simple, unstructured prompt — no risk score, no required sections,
+    # no safety rules, no signal-by-signal reasoning
+    baseline_prompt = (
+        "Generate a professional customer-success follow-up email based on "
+        "this customer account data.\n\n"
+        + raw_data_summary
+    )
+
+    with st.spinner("Generating baseline email..."):
+        try:
+            client = OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{"role": "user", "content": baseline_prompt}],
+                temperature=0.7,
+            )
+            baseline_output = response.choices[0].message.content
+        except OpenAIError as e:
+            st.error(f"OpenAI API call failed: {e}")
+            st.stop()
+        except Exception as e:
+            st.error(f"Unexpected error during API call: {e}")
+            st.stop()
+
+    st.markdown("**Baseline Output**")
+    st.markdown(baseline_output)
+
+# ---------------------------------------------------------------------------
+# IMPROVED AI-ASSISTED OUTPUT
+# ---------------------------------------------------------------------------
+# The improved system uses the deterministic risk engine to score and
+# classify the customer before passing structured results to the model.
+# The prompt enforces signal-by-signal reasoning, required output sections,
+# safety rules, and a human review disclaimer. This is the "after" state.
+# ---------------------------------------------------------------------------
+st.divider()
+st.subheader("Improved AI-Assisted Output")
+st.caption(
+    "Uses deterministic risk scoring, structured signal reasoning, "
+    "and a prompt-engineered system prompt to generate a CSM response plan."
+)
+
+if st.button("Generate GenAI Response"):
+
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        st.error(
+            "OPENAI_API_KEY is not set. Add it to a .env file or export it in your terminal before running the app."
+        )
+        st.stop()
+
+    # Load the structured prompt template
     prompt_path = os.path.join(os.path.dirname(__file__), "prompts", "renewal_prompt.txt")
     try:
         with open(prompt_path, "r") as f:
@@ -126,7 +198,7 @@ if st.button("Generate GenAI Response"):
         st.error("Could not find prompts/renewal_prompt.txt. Make sure the file exists.")
         st.stop()
 
-    # Fill the prompt placeholders with the customer's data
+    # Fill the prompt placeholders with structured risk engine output
     filled_prompt = prompt_template.format(
         customer_name=result["customer_name"],
         risk_score=result["risk_score"],
@@ -141,7 +213,6 @@ if st.button("Generate GenAI Response"):
         notes=customer_row.get("notes", "None"),
     )
 
-    # Call the OpenAI API
     with st.spinner("Generating response..."):
         try:
             client = OpenAI(api_key=api_key)
@@ -158,5 +229,5 @@ if st.button("Generate GenAI Response"):
             st.error(f"Unexpected error during API call: {e}")
             st.stop()
 
-    # Display the GenAI output
+    st.markdown("**Improved Output**")
     st.markdown(genai_output)
