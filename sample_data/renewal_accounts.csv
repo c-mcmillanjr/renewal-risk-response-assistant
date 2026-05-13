@@ -1,0 +1,11 @@
+customer_name,usage_change_percent,last_login_days,support_ticket_count,renewal_days_remaining,customer_sentiment,feature_request_status,notes
+City Health Dept,-35,18,5,45,negative,unavailable,"Customer has complained about low adoption and unresolved tickets."
+State Tax Agency,-10,7,1,120,neutral,none,"Customer is using the platform but engagement has slightly declined."
+County Schools,15,2,0,180,positive,none,"Customer usage is increasing and stakeholders are engaged."
+Public Works Office,-28,20,2,30,neutral,pending,"Usage has dropped and renewal is approaching."
+Justice Services,-5,3,4,60,negative,unavailable,"Customer is frustrated about support response time."
+Transportation Authority,-40,25,6,35,negative,pending,"Executive sponsor has gone quiet and users are logging in less often."
+Emergency Management Office,5,1,1,90,positive,none,"Customer is active and recently completed an onboarding session."
+Housing Services,-18,12,2,75,neutral,none,"Usage has declined slightly, but customer has not raised major concerns."
+Water Utility Board,-30,16,3,50,negative,unavailable,"Customer is waiting on a feature request and adoption has dropped."
+Parks and Recreation,8,4,0,150,positive,none,"Customer remains engaged and has positive feedback from users."
