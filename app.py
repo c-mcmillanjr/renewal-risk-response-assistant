@@ -3,10 +3,15 @@ import os
 
 import pandas as pd
 import streamlit as st
+from dotenv import load_dotenv
+from openai import OpenAI, OpenAIError
 
 # Allow imports from the scripts/ directory
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
-from risk_engine import validate_csv, calculate_risk
+from risk_engine import validate_csv, calculate_risk, analyze_customer
+
+# Load OPENAI_API_KEY from a .env file if present
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Page config
@@ -37,7 +42,6 @@ try:
     validate_csv(df)
 except ValueError as e:
     st.error("CSV validation failed.")
-    # Surface the missing columns so the user knows what to fix
     missing_cols = str(e).replace("CSV is missing required columns: ", "")
     st.write("**Missing columns:**", missing_cols)
     st.stop()
@@ -53,21 +57,20 @@ st.dataframe(df, use_container_width=True)
 # ---------------------------------------------------------------------------
 st.subheader("Select a Customer")
 customer_names = df["customer_name"].dropna().unique().tolist()
-
 selected_name = st.selectbox("Customer", options=customer_names)
 
 # ---------------------------------------------------------------------------
-# Risk analysis for the selected customer
+# Deterministic risk analysis for the selected customer
 # ---------------------------------------------------------------------------
 customer_row = df[df["customer_name"] == selected_name].iloc[0]
 
 try:
     score, level, reasons = calculate_risk(customer_row)
+    result = analyze_customer(customer_row)
 except Exception as e:
     st.error(f"Risk calculation failed: {e}")
     st.stop()
 
-# Color-code the risk badge
 badge_color = {"Low": "green", "Medium": "orange", "High": "red"}.get(level, "gray")
 
 st.subheader("Risk Assessment")
@@ -75,7 +78,6 @@ st.markdown(f"**Customer:** {selected_name}")
 st.markdown(f"**Risk Score:** {score}")
 st.markdown(f"**Risk Level:** :{badge_color}[{level}]")
 
-# Risk reasons
 st.markdown("**Risk Reasons:**")
 if reasons:
     for reason in reasons:
@@ -98,3 +100,63 @@ col1, col2, col3 = st.columns(3)
 cols = [col1, col2, col3]
 for i, (label, value) in enumerate(metrics.items()):
     cols[i % 3].metric(label, value)
+
+# ---------------------------------------------------------------------------
+# GenAI response section
+# ---------------------------------------------------------------------------
+st.divider()
+st.subheader("GenAI Response")
+
+if st.button("Generate GenAI Response"):
+
+    # Check for API key before making any call
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        st.error(
+            "OPENAI_API_KEY is not set. Add it to a .env file or export it in your terminal before running the app."
+        )
+        st.stop()
+
+    # Load the prompt template
+    prompt_path = os.path.join(os.path.dirname(__file__), "prompts", "renewal_prompt.txt")
+    try:
+        with open(prompt_path, "r") as f:
+            prompt_template = f.read()
+    except FileNotFoundError:
+        st.error("Could not find prompts/renewal_prompt.txt. Make sure the file exists.")
+        st.stop()
+
+    # Fill the prompt placeholders with the customer's data
+    filled_prompt = prompt_template.format(
+        customer_name=result["customer_name"],
+        risk_score=result["risk_score"],
+        risk_level=result["risk_level"],
+        risk_reasons=", ".join(result["risk_reasons"]) if result["risk_reasons"] else "None",
+        usage_change_percent=result["source_metrics"]["usage_change_percent"],
+        last_login_days=result["source_metrics"]["last_login_days"],
+        support_ticket_count=result["source_metrics"]["support_ticket_count"],
+        renewal_days_remaining=result["source_metrics"]["renewal_days_remaining"],
+        customer_sentiment=result["source_metrics"]["customer_sentiment"],
+        feature_request_status=result["source_metrics"]["feature_request_status"],
+        notes=customer_row.get("notes", "None"),
+    )
+
+    # Call the OpenAI API
+    with st.spinner("Generating response..."):
+        try:
+            client = OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{"role": "user", "content": filled_prompt}],
+                temperature=0.3,
+            )
+            genai_output = response.choices[0].message.content
+        except OpenAIError as e:
+            st.error(f"OpenAI API call failed: {e}")
+            st.stop()
+        except Exception as e:
+            st.error(f"Unexpected error during API call: {e}")
+            st.stop()
+
+    # Display the GenAI output
+    st.markdown(genai_output)
