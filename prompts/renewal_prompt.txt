@@ -47,16 +47,57 @@ editorialize — describe only what the data says.
 --------------------------------------------------------------------------------
 2. RISK REASONING
 --------------------------------------------------------------------------------
-Explain why the risk score is what it is. Walk through each item in risk_reasons
-and connect it to the corresponding source_metric value. Be explicit about which
-signals are most severe. If two or more signals are compounding (e.g., usage drop
-+ renewal urgency + negative sentiment), call that out.
+Reason through each of the following seven signals individually. For each one,
+state the raw value from source_metrics, whether it triggered a risk point
+contribution, and what it suggests about the customer's health. Do not skip any
+signal, even if it did not contribute to the score.
+
+  a. USAGE TREND
+     State usage_change_percent. Is it positive, flat, or declining? If it is at
+     or below -25%, explain that this triggered +3 risk points and describe what
+     a decline of this magnitude typically indicates about platform adoption.
+
+  b. LOGIN ACTIVITY
+     State last_login_days. How recently did users log in? If 14 or more days have
+     passed, explain that this triggered +2 risk points and what prolonged inactivity
+     may signal about user engagement or platform abandonment.
+
+  c. SUPPORT TICKET ACTIVITY
+     State support_ticket_count. Are there open tickets? If 3 or more are open,
+     explain that this triggered +2 risk points and what a high ticket volume may
+     indicate about unresolved friction or product dissatisfaction.
+
+  d. RENEWAL TIMING
+     State renewal_days_remaining. How much time is left before the contract
+     renewal? If 60 days or fewer remain, explain that this triggered +2 risk
+     points and why urgency compounds other risk signals when renewal is imminent.
+
+  e. CUSTOMER SENTIMENT
+     State customer_sentiment. Is sentiment positive, neutral, or negative? If
+     negative, explain that this triggered +2 risk points and how reported sentiment
+     aligns or conflicts with the other signals present.
+
+  f. FEATURE REQUEST STATUS
+     State feature_request_status. Is a feature request pending or unavailable?
+     If so, explain that this triggered +1 risk point and how unmet feature
+     expectations may affect the customer's renewal decision.
+
+  g. CUSTOMER NOTES
+     Summarize any relevant context from the notes field. Identify whether the
+     notes corroborate, contradict, or add nuance to the signals above. Note any
+     named stakeholders, specific complaints, or positive indicators mentioned.
+
+After completing all seven signals, write a brief synthesis paragraph (2–4
+sentences) explaining how the signals collectively support the final risk score
+and risk level. Call out any compounding combinations (e.g., usage decline +
+renewal urgency + negative sentiment occurring simultaneously).
 
 --------------------------------------------------------------------------------
 3. RISK LEVEL EXPLANATION
 --------------------------------------------------------------------------------
 State the risk level (Low / Medium / High) and explain what it means in the
-context of this specific account. Use the score thresholds below for reference:
+context of this specific account. Connect the risk level directly to the signal
+analysis in Section 2. Use the score thresholds below for reference:
   - Low    (0–3):  Account shows limited risk signals. Monitor but no urgent action.
   - Medium (4–6):  Multiple risk signals present. Proactive outreach recommended.
   - High   (7+):   Significant churn indicators. Immediate CSM intervention required.
@@ -64,11 +105,16 @@ context of this specific account. Use the score thresholds below for reference:
 --------------------------------------------------------------------------------
 4. RECOMMENDED RESPONSE STRATEGY
 --------------------------------------------------------------------------------
-Provide 3–5 concrete, actionable steps the CSM should take based on the risk level
-and signals. Tailor recommendations to the specific signals present. Examples of
-appropriate recommendations include: scheduling an executive business review,
-resolving open support tickets, re-engaging an inactive executive sponsor,
-providing a usage health report, or coordinating with product on feature requests.
+Provide 3–5 concrete, actionable steps the CSM should take. Each step must
+reference at least one specific signal from Section 2 as its justification.
+Format each recommendation as:
+  - [Action]: [Signal justification from Section 2]
+
+Tailor recommendations to the signals present. Examples of appropriate actions
+include: scheduling an executive business review, resolving open support tickets,
+re-engaging an inactive executive sponsor, providing a usage health report,
+coordinating with product on a feature request, or adjusting outreach urgency
+based on days remaining until renewal.
 
 --------------------------------------------------------------------------------
 5. DRAFT CUSTOMER EMAIL
