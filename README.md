@@ -366,13 +366,39 @@ The app will open at `http://localhost:8501`.
 
 ## 17. Screenshots / Artifact Snapshot
 
-Screenshots of the working application are stored in the `screenshots/` directory and include:
+**Live deployed app:** [c-mcmillanjr-renewal-risk-response-assistant-app-3udm31.streamlit.app](https://c-mcmillanjr-renewal-risk-response-assistant-app-3udm31.streamlit.app)
 
-- App upload screen with uploaded CSV and data table
-- Risk Assessment section showing score, level, and reasons
-- Source Metrics display
-- Baseline Email Generator and Improved AI-Assisted Output sections
-- Full improved output: Data Observations through Human Review Notes
+**Demo video:** [`screenshots/demo_walkthrough.webm`](screenshots/demo_walkthrough.webm)
+
+---
+
+### App Upload and Data Table
+![App upload screen showing uploaded CSV and full data table](screenshots/01_screenshot.png)
+
+---
+
+### Risk Assessment and Source Metrics — Transportation Authority
+![Risk Assessment section showing score 12, High risk level, 6 risk reasons, and source metrics](screenshots/02_screenshot.png)
+
+---
+
+### Baseline Email Generator and Improved AI-Assisted Output Sections
+![Side-by-side view of the Baseline Email Generator button and Improved AI-Assisted Output section](screenshots/03_screenshot.png)
+
+---
+
+### Improved Output — Data Observations and Risk Reasoning (All 7 Signals)
+![Improved output showing Data Observations section and full signal-by-signal Risk Reasoning](screenshots/04_screenshot.png)
+
+---
+
+### Improved Output — Recommended Response Strategy and Draft Customer Email
+![Improved output showing 5 actionable strategy recommendations and professionally worded draft email](screenshots/05_screenshot.png)
+
+---
+
+### Improved Output — Human Review Notes
+![Improved output showing Human Review Notes section with mandatory AI disclaimer](screenshots/06_screenshot.png)
 
 ---
 
