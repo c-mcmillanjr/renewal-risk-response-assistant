@@ -368,7 +368,9 @@ The app will open at `http://localhost:8501`.
 
 **Live deployed app:** [c-mcmillanjr-renewal-risk-response-assistant-app-3udm31.streamlit.app](https://c-mcmillanjr-renewal-risk-response-assistant-app-3udm31.streamlit.app)
 
-**Demo video:** [`screenshots/demo_walkthrough.webm`](screenshots/demo_walkthrough.webm)
+**Demo video (YouTube):** [https://youtu.be/7cfV-GI03nI](https://youtu.be/7cfV-GI03nI)
+
+**Demo video (local):** [`screenshots/demo_walkthrough.webm`](screenshots/demo_walkthrough.webm)
 
 ---
 
